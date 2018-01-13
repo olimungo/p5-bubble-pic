@@ -1,0 +1,29 @@
+{
+    "name": "bubble-pic",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "start": "npm run watch-typescript & npm run serve",
+        "watch-typescript": "tsc -w",
+        "serve": "live-server",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "prettier": {
+        "tabWidth": 4,
+        "singleQuote": true,
+        "printWidth": 130
+    },
+    "dependencies": {
+        "systemjs": "^0.20.19",
+        "tslib": "^1.8.1"
+    },
+    "devDependencies": {
+        "@types/es6-shim": "^0.31.35",
+        "es6-shim": "^0.35.3",
+        "live-server": "^1.2.0"
+    }
+}
