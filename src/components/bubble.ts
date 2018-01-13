@@ -18,7 +18,6 @@ export class Bubble {
     }
 
     draw() {
-        this.behaviors();
         this.update();
 
         this.p.push();
@@ -97,6 +96,7 @@ export class Bubble {
     }
 
     update() {
+        this.behaviors();
         this.location.add(this.velocity);
         this.velocity.add(this.acceleration);
         this.acceleration.mult(0);
