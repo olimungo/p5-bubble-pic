@@ -1,4 +1,8 @@
 export class Bubble {
+    public targetReached = false;
+    public alpha = 255;
+    public fillColor: p5.Color;
+
     private location: p5.Vector;
     private target: p5.Vector;
     private velocity: p5.Vector;
@@ -18,22 +22,27 @@ export class Bubble {
     }
 
     draw() {
-        this.update();
+        if (!this.targetReached) {
+            this.update();
+        }
 
-        this.p.push();
-        this.p.fill(255);
-        this.p.noStroke();
-        this.p.ellipse(this.location.x, this.location.y, this.radius, this.radius);
-        this.p.pop();
+        if (this.radius > 0) {
+            this.p.push();
+            const color = this.p.color(this.fillColor[0], this.fillColor[1], this.fillColor[2], this.alpha);
+            this.p.fill(color);
+            this.p.noStroke();
+            this.p.ellipse(this.location.x, this.location.y, this.radius * 2.5, this.radius * 2.5);
+            this.p.pop();
+        }
     }
 
     behaviors() {
         const join = this.joinTarget(this.target);
         this.applyForce(join);
 
-        const mouse = this.p.createVector(this.p.mouseX, this.p.mouseY);
-        const escape = this.escapeTargetFromMinimalDistance(mouse);
-        this.applyForce(escape);
+        // const mouse = this.p.createVector(this.p.mouseX, this.p.mouseY);
+        // const escape = this.escapeTargetFromMinimalDistance(mouse);
+        // this.applyForce(escape);
     }
 
     joinTarget(target: p5.Vector) {
@@ -97,8 +106,13 @@ export class Bubble {
 
     update() {
         this.behaviors();
+
         this.location.add(this.velocity);
         this.velocity.add(this.acceleration);
         this.acceleration.mult(0);
+
+        if (this.p.abs(this.location.x - this.target.x) < 0.5 && this.p.abs(this.location.y - this.target.y) < 0.5) {
+            this.targetReached = true;
+        }
     }
 }

@@ -1,34 +1,69 @@
 import { Bubble } from './bubble';
 
 export class Bubbles {
-    private scaleFactor = 13;
+    public allTargetsReached = false;
+    public alpha = 255;
+
+    private showImageDuration = 2000;
+    private scaleFactor;
+    private smallImage: p5.Image;
     private bubbles: Bubble[] = [];
 
-    constructor(private p: p5, image: p5.Image) {
-        const width = p.floor(image.width / this.scaleFactor);
-        const height = p.floor(image.height / this.scaleFactor);
-        const smallImage = p.createImage(width, height);
-        const centerX = (p.windowWidth - image.width) / 2;
-        const centerY = (p.windowHeight - image.height) / 2;
+    constructor(private p: p5, private image: p5.Image) {
+        this.setUp();
+    }
 
-        smallImage.copy(image, 0, 0, image.width, image.height, 0, 0, width, height);
-        smallImage.loadPixels();
+    draw() {
+        let targetsReached = true;
 
-        for (let x = 0; x < width; x++) {
-            for (let y = 0; y < height; y++) {
-                const color = smallImage.get(x, y);
-                const radius = p.map(p.lightness(color), 0, 255, this.scaleFactor / 10, this.scaleFactor) * 2;
+        this.bubbles.forEach(bubble => {
+            bubble.alpha = this.alpha;
+            bubble.draw();
+
+            targetsReached = targetsReached && bubble.targetReached;
+        });
+
+        this.allTargetsReached = targetsReached;
+    }
+
+    convertImage() {
+        this.scaleFactor = this.p.floor(this.image.width / 70);
+
+        const width = this.image.width / this.scaleFactor;
+        const height = this.image.height / this.scaleFactor;
+        this.smallImage = this.p.createImage(width, height);
+
+        this.smallImage.copy(this.image, 0, 0, this.image.width, this.image.height, 0, 0, width, height);
+        this.smallImage.loadPixels();
+    }
+
+    setUp(): Boolean {
+        const centerX = (this.p.windowWidth - this.image.width) / 2;
+        const centerY = (this.p.windowHeight - this.image.height) / 2;
+
+        this.convertImage();
+
+        for (let x = 0; x < this.smallImage.width; x++) {
+            for (let y = 0; y < this.smallImage.height; y++) {
+                const color = this.smallImage.get(x, y);
+                const radius = this.p.map(this.p.lightness(color), 0, 255, 0, this.scaleFactor);
                 const xCorrected = x * this.scaleFactor + centerX;
                 const yCorrected = y * this.scaleFactor + centerY;
 
-                let xStart = p.random(p.windowWidth);
-                let yStart = p.random(p.windowHeight);
+                let xStart = this.p.random(this.p.windowWidth);
+                let yStart = this.p.random(this.p.windowHeight);
 
-                // let v = this.p.createVector(xStart, yStart);
-                // let center = this.p.createVector(this.p.windowWidth / 2, this.p.windowHeight / 2);
-                // let res = p5.Vector.sub(v, center).setMag(2);
+                // let v = this.this.p.createVector(xStart, yStart);
+                // let center = this.this.p.createVector(this.this.p.windowWidth / 2, this.this.p.windowHeight / 2);
+                // let res = p5.Vector.sub(center, v).add(center);
                 // xStart = res.x;
                 // yStart = res.y;
+
+                let v = this.p.createVector(xStart, yStart);
+                let center = this.p.createVector(this.p.windowWidth / 2, this.p.windowHeight / 2);
+                let res = p5.Vector.sub(center, v).add(v);
+                xStart = res.x;
+                yStart = res.y;
 
                 const reverse = this.p.ceil(this.p.random(0, 4));
 
@@ -40,23 +75,20 @@ export class Bubbles {
                         yStart *= -1;
                         break;
                     case 3:
-                        xStart += p.windowWidth;
+                        xStart += this.p.windowWidth;
                         break;
                     case 4:
-                        yStart += p.windowHeight;
+                        yStart += this.p.windowHeight;
                         break;
                 }
 
-                const bubble = new Bubble(p, xStart, yStart, xCorrected, yCorrected, radius);
+                const bubble = new Bubble(this.p, xStart, yStart, xCorrected, yCorrected, radius);
+                bubble.fillColor = <p5.Color>color;
 
                 this.bubbles.push(bubble);
             }
         }
-    }
 
-    draw() {
-        this.bubbles.forEach(bubble => {
-            bubble.draw();
-        });
+        return true;
     }
 }
