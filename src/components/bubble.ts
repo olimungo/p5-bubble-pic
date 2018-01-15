@@ -3,20 +3,23 @@ export class Bubble {
     public alpha = 255;
     public fillColor: p5.Color;
 
+    private originalLocation: p5.Vector;
     private location: p5.Vector;
     private target: p5.Vector;
     private velocity: p5.Vector;
     private acceleration: p5.Vector;
     private maxSpeed = 9;
     private maxForce = 4;
-    private mediumSpeed = 4;
+    private mediumSpeed = 3;
     private mediumForce = 2;
-    private slowDownDistance = 400;
+    private slowDownDistance = 100;
     private mouseInfluenceDistance = 75;
+    private effectOutTriggered = false;
 
-    constructor(private p: p5, xStart: number, yStart: number, x: number, y: number, private radius: number) {
+    constructor(private p: p5, xStart: number, yStart: number, xTarget: number, yTarget: number, private radius: number) {
+        this.originalLocation = p.createVector(xStart, yStart);
         this.location = p.createVector(xStart, yStart);
-        this.target = p.createVector(x, y);
+        this.target = p.createVector(xTarget, yTarget);
         this.velocity = p5.Vector.random2D();
         this.acceleration = p.createVector();
     }
@@ -49,19 +52,16 @@ export class Bubble {
         const desired = p5.Vector.sub(target, this.location);
         const distance = desired.mag();
         let speed = this.maxSpeed;
+        let force = this.maxForce;
 
         if (distance < this.slowDownDistance) {
-            this.maxSpeed = this.mediumSpeed;
-            this.maxForce = this.mediumForce;
-            speed = this.p.map(distance, 0, 100, 0, this.maxSpeed);
-        } else {
-            this.maxSpeed = this.maxSpeed;
-            this.maxForce = this.maxForce;
+            force = this.mediumForce;
+            speed = this.p.map(distance, 0, 100, 0, this.mediumSpeed);
         }
 
         desired.setMag(speed);
         const steer = p5.Vector.sub(desired, this.velocity);
-        steer.limit(this.maxForce);
+        steer.limit(force);
 
         return steer;
     }
@@ -114,5 +114,19 @@ export class Bubble {
         if (this.p.abs(this.location.x - this.target.x) < 0.5 && this.p.abs(this.location.y - this.target.y) < 0.5) {
             this.targetReached = true;
         }
+    }
+
+    explode() {
+        const randomDelay = this.p.random(0, 100);
+        this.targetReached = false;
+        this.effectOutTriggered = true;
+        this.target = this.originalLocation.copy();
+        this.acceleration = p5.Vector.random2D();
+        this.maxSpeed = this.p.random(30, 50);
+        this.maxForce = this.p.random(5, 10);
+        this.mediumSpeed = 30;
+        this.mediumForce = 5;
+
+        this.velocity = p5.Vector.random2D();
     }
 }

@@ -3,8 +3,8 @@ import { Bubbles } from './components/bubbles';
 
 var sketch = (p: p5) => {
     const imageFiles = [
-        '/assets/heart.png',
         '/assets/maeva1.png',
+        '/assets/heart.png',
         '/assets/oli_eye.jpg',
         '/assets/we-love-art.jpg',
         '/assets/maeva_oli.png'
@@ -14,7 +14,7 @@ var sketch = (p: p5) => {
     let image: p5.Image;
     let bubbles: Bubbles;
     let newBubbles: Bubbles;
-    let alpha = 255;
+    let effectOutTriggered = false;
 
     p.preload = () => {
         imageFiles.forEach(imageFile => images.push(p.loadImage(imageFile)));
@@ -31,16 +31,22 @@ var sketch = (p: p5) => {
 
     p.draw = () => {
         p.background(0);
+
         // p.scale(0.5);
-        bubbles.alpha = alpha;
+        // p.translate(p.windowWidth / 2, p.windowHeight / 2);
+
         bubbles.draw();
 
-        if (bubbles.allTargetsReached) {
-            if (alpha === 255) {
-                getNextImage();
-            }
+        if (bubbles.allTargetsReached && !effectOutTriggered) {
+            getNextImage();
+            bubbles.setEffectOut();
+            effectOutTriggered = true;
+        }
 
-            fadeImage();
+        if (bubbles.effectOutEnded) {
+            console.log('dddd');
+            bubbles = newBubbles;
+            effectOutTriggered = false;
         }
     };
 
@@ -52,15 +58,6 @@ var sketch = (p: p5) => {
         }
 
         newBubbles = new Bubbles(p, images[currentImage]);
-    };
-
-    const fadeImage = () => {
-        alpha -= 10;
-
-        if (alpha <= 0) {
-            bubbles = newBubbles;
-            alpha = 255;
-        }
     };
 };
 
